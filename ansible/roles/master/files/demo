@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Demo a kube cluster
+
+# Set slb tag
+echo setting node tags for nodes
+sudo kubectl label node core-node01.ctocllab.cisco.com role=loadbalancer --overwrite
+sudo kubectl label node core-node02.ctocllab.cisco.com role=loadbalancer --overwrite
+sudo kubectl label node core-node04.ctocllab.cisco.com role=worker --overwrite
+sudo kubectl label node core-node05.ctocllab.cisco.com role=worker --overwrite
+sudo kubectl label node core-node07.ctocllab.cisco.com role=worker --overwrite
+sudo kubectl label node core-node08.ctocllab.cisco.com role=worker --overwrite
+kubectl get nodes
+sleep 3
+
+# create web rc
+echo creating web replication controller
+sudo kubectl create -f /etc/kubernetes/manifests/web-rc.yaml
+sleep 3
+sudo kubectl describe rc web
+echo waiting 5 sec for web replication pods to start spawning
+sleep 5
+sudo kubectl get pods
+sleep 3
+
+# create web service
+echo creating web service
+sudo kubectl create -f /etc/kubernetes/manifests/web-svc.yaml
+sleep 3
+sudo kubectl describe service web
+sleep 3
+
+# create slb rc
+echo creating slb replication controller
+sudo kubectl create -f /etc/kubernetes/manifests/slb-rc.yaml
+sleep 3
+sudo kubectl get rc
+sleep 3
+
+# Print demo dns name
+echo showing demo DNS name
+nslookup kubedemo.ctocllab.cisco.com
+
+# Done
+echo demo setup complete

@@ -1,0 +1,2 @@
+#!/bin/bash
+LD_LIBRARY_PATH={{ bootstrap_script_dir }}/pypy/lib:$LD_LIBRARY_PATH {{ bootstrap_script_dir }}/pypy/bin/$(basename $0) $@

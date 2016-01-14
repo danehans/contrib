@@ -1,40 +1,89 @@
 ---
+- name: Get distro name from /etc/os-release
+  raw: "grep '^NAME=' /etc/os-release | sed s'/NAME=//'"
+  register: distro
+  always_run: yes
+
+- name: Init the is_coreos fact
+  set_fact:
+    is_coreos: false
+
+- name: Set the is_coreos fact
+  set_fact:
+    is_coreos: true
+  when: "'CoreOS' in distro.stdout"
+
+- name: etcd service name
+  set_fact:
+    etcd_svc_name: "etcd2"
+  when: is_coreos
+
 - name: Install etcd
   action: "{{ ansible_pkg_mgr }}"
   args:
-        name: etcd
+        name: "{{ etcd_svc_name }}"
         state: latest
-  notify:
-    - restart etcd
-  when: not is_atomic and ansible_distribution != "Ubuntu"
+#  notify:
+#    - restart "{{ etcd_svc_name }}"
+#  when: (not is_atomic and ansible_distribution != "Ubuntu") or
+  when: not is_coreos
 
 - name: Force etcd_source_type to github when packages are not available
   set_fact:
     etcd_source_type: "github-release"
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_distribution == "Ubuntu" or is_coreos
 
 - name: Install from github
   include: github-release.yml
   when: etcd_source_type == "github-release"
 
+#- name: Create etcd conf dir
+#  file: path=/etc/etcd state=directory mode=0755
+
 - name: Write etcd config file
   template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf
   notify:
-    - restart etcd
+     - reload systemd
+#    - restart "{{ etcd_svc_name }}"
+
+#- name: Create systemd drop-in directory
+#  file: path=/etc/systemd/system/etcd.service.d/ state=directory mode=0755
+#  when: is_coreos
+
+- name: Create etcd dropin dir
+  file: path=/etc/systemd/system/etcd2.service.d state=directory mode=0755
+  when: is_coreos
+
+- name: Set etcd dropin conf file for coreos
+  copy: src=10-conf-file.conf dest=/etc/systemd/system/etcd2.service.d/10-conf-file.conf
+  register: etcd2_dropin
+  notify:
+    - reload systemd
+  when: is_coreos
 
 - name: Write etcd systemd unit file for Debian
   copy: src=etcd.service dest=/etc/systemd/system
   notify:
     - reload systemd
-    - restart etcd
   when: ansible_distribution == "Debian"
 
 - name: Enable etcd
-  service: name=etcd enabled=yes
+  service: name={{ etcd_svc_name }} enabled=yes
+  when: not is_coreos
+
+- name: Enable etcd for CoreOS
+  raw: /usr/bin/systemctl enable {{ etcd_svc_name }}.service
+  when: is_coreos
 
 - name: Start etcd
-  service: name=etcd state=started
+  service: name={{ etcd_svc_name }} state=started
   register: etcd_started
+  when: not is_coreos
+
+- name: Start etcd for CoreOS
+  raw: /usr/bin/systemctl start {{ etcd_svc_name }}.service
+  register: etcd_started
+  when: is_coreos
 
 - include: firewalld.yml
   when: has_firewalld

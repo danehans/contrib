@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: web
+    role: service
+  name: web
+spec:
+  ports:
+    # the port that this service should serve on
+    - name: web
+      port: 80
+      protocol: TCP
+  selector:
+    web: "true"

@@ -1,0 +1,82 @@
+---
+- name: kube version
+  set_fact:
+    kube_version: "v1.1.4"
+
+- name: kube download url
+  set_fact:
+    kube_download_url: "https://github.com/kubernetes/kubernetes/releases/download"
+
+- name: kube download directory
+  set_fact:
+    kube_download_dir: "/tmp/.ansible/files"
+
+- name: kube bin directory
+  set_fact:
+    kube_bin_dir: "/opt/bin"
+
+- name: Determine if download directory exists
+  stat: path={{ kube_download_dir }}
+  register: kdd
+  changed_when: false
+  always_run: yes
+
+- name: Determine if bin directory exists
+  stat: path={{ kube_bin_dir }}
+  register: kbd
+  changed_when: false
+  always_run: yes
+
+- name: Create download dir
+  file: path={{ kube_download_dir }} state=directory
+  when: not kdd.stat.exists
+
+- name: Create bin dir
+  file: path={{ kube_bin_dir }} state=directory
+  when: not kbd.stat.exists
+
+- name: Determine download tar exists
+  stat: path={{ kube_download_dir }}/kubernetes.tar.gz
+  register: kdt
+  changed_when: false
+  always_run: yes
+
+- name: Download tar file
+  get_url:
+    url: "{{ kube_download_url }}/{{ kube_version }}/kubernetes.tar.gz"
+    dest: "{{ kube_download_dir }}"
+    validate_certs: False
+  environment:
+    http_proxy: "{{ http_proxy|default('') }}"
+    https_proxy: "{{ https_proxy|default('') }}"
+  when: not kdt.stat.exists
+
+- name: Extract tar file
+  unarchive:
+    src: "{{ kube_download_dir }}/kubernetes.tar.gz"
+    dest: "{{ kube_download_dir }}"
+    copy: no
+  when: not kdt.stat.exists
+
+- name: Extract 2nd tar file
+  unarchive:
+    src: "{{ kube_download_dir }}/kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
+    dest: /opt/
+    copy: no
+  when: not kdt.stat.exists
+
+- name: Create symlinks
+  file:
+    src: "/opt/kubernetes/server/bin/{{ item }}"
+    dest: "{{ kube_bin_dir }}/{{ item }}"
+    state: link
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kubectl
+  when: not kdt.stat.exists
+
+#- name: Create upstart script
+#  copy: src=kube.upstart dest=/etc/init/kube.conf
+#  when: not is_coreos

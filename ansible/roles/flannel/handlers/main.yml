@@ -1,4 +1,7 @@
 ---
+- name: reload systemd
+  command: systemctl --system daemon-reload
+
 - name: restart flannel
   service: name=flanneld state=restarted
   notify:

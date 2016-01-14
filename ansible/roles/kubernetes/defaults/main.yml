@@ -4,7 +4,8 @@ kube_master_api_port: 443
 # This directory is where all the additional scripts go
 # that Kubernetes normally puts in /srv/kubernetes.
 # This puts them in a sane location
-kube_script_dir: /usr/libexec/kubernetes
+#kube_script_dir: /usr/libexec/kubernetes
+kube_script_dir: /opt/bin/kubernetes
 
 # This directory is where all the additional config stuff goes
 # the kubernetes normally puts in /srv/kubernets.
@@ -13,6 +14,11 @@ kube_script_dir: /usr/libexec/kubernetes
 # change it. Things like the systemd scripts are hard coded to
 # look in here. Don't do it.
 kube_config_dir: /etc/kubernetes
+
+# This is the directory where all the Kubernetes binaries
+# (i.e. kube-apiserver, kubelet, etc.) reside. This parameter
+# was added to support CoreOS where /usr/bin is read only.
+kube_bin_dir: /usr/bin
 
 # This is where all the cert scripts and certs will be located
 kube_cert_dir: "{{ kube_config_dir }}/certs"

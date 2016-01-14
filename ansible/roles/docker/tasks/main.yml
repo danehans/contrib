@@ -5,8 +5,8 @@
 - include: apt-docker-install.yml
   when: ansible_distribution == "Ubuntu"
 
-- include: generic-install.yml
-  when: ansible_distribution != "Debian" and ansible_distribution != "Ubuntu"
+#- include: generic-install.yml
+#  when: ansible_distribution != "Debian" and ansible_distribution != "Ubuntu"
 
 #
 # systemd service configuration uses EnvironmentFile (docker and docker-network)
@@ -67,3 +67,8 @@
   service: name=docker enabled=yes
   notify:
     - start docker
+  when: not is_coreos
+
+- name: Enable Docker for CoreOS
+  raw: /usr/bin/systemctl enable docker.service
+  when: is_coreos

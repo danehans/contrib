@@ -9,6 +9,19 @@
   register: distro
   always_run: yes
 
+- name: Init the is_coreos fact
+  set_fact:
+    is_coreos: false
+
+- name: Set the is_coreos fact
+  set_fact:
+    is_coreos: true
+#  when: distro.stdout == 'CoreOS'
+  when: "'CoreOS' in distro.stdout"
+
+- include: coreos.yml
+  when: is_coreos
+
 - name: Determine if Atomic
   stat: path=/run/ostree-booted
   register: s

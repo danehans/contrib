@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/bin/
+
+cat > /opt/bin/python <<EOF
+#!/bin/sh
+
+tty > /dev/null 2>&1 && ttyflag='-t'
+exec docker run -i --rm -v /home/core:/home/core -v /tmp/.ansible/files:/tmp/.ansible/files \$ttyflag --net=none python:2.7-alpine python "\$@"
+EOF
+
+sudo chmod +x /opt/bin/python

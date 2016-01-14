@@ -135,7 +135,7 @@ echo "== Kubernetes addon manager started at $(date -Is) with ADDON_CHECK_INTERV
 # about, in a flat yaml format.
 kube_env_yaml="/var/cache/kubernetes-install/kube_env.yaml"
 if [ ! -e "${kubelet_kubeconfig_file}" ]; then
-  eval $(python -c '''
+  eval $(/opt/bin/python -c '''
 import pipes,sys,yaml
 
 for k,v in yaml.load(sys.stdin).iteritems():

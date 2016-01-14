@@ -2,7 +2,10 @@
 - include: config.yml
 
 - include: client.yml
-  when: inventory_hostname in groups['masters'] + groups['nodes']
+#  when: inventory_hostname in groups['masters'] + groups['nodes']
+
+- include: coreos.yml
+  when: is_coreos
 
 - include: firewalld.yml
   when: has_firewalld

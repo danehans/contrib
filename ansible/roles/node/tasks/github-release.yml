@@ -1,0 +1,46 @@
+---
+- name: kube version
+  set_fact:
+    kube_version: "v1.1.4"
+
+- name: Create download dir
+  file: path="/tmp/.ansible/files" state=directory
+
+- name: Create bin dir
+  file: path="/opt/bin" state=directory
+  when: is_coreos
+
+- name: Download tar file
+  get_url:
+    url: "https://github.com/kubernetes/kubernetes/releases/download/{{ kube_version }}/kubernetes.tar.gz"
+    dest: /tmp/.ansible/files
+    validate_certs: False
+  environment:
+    http_proxy: "{{ http_proxy|default('') }}"
+    https_proxy: "{{ https_proxy|default('') }}"
+
+- name: Extract tar file
+  unarchive:
+    src: "/tmp/.ansible/files/kubernetes.tar.gz"
+    dest: /tmp/.ansible/files
+    copy: no
+
+- name: Extract 2nd tar file
+  unarchive:
+    src: "/tmp/.ansible/files/kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
+    dest: /opt/
+    copy: no
+
+- name: Create symlinks
+  file:
+    src: /opt/kubernetes/server/bin/{{ item }}
+    dest: /opt/bin/{{ item }}
+    state: link
+  with_items:
+    - kubelet
+    - kube-proxy
+    - kubectl
+
+- name: Create upstart script
+  copy: src=kube.upstart dest=/etc/init/kube.conf
+  when: not is_coreos

@@ -1,0 +1,2 @@
+- name: Run python_installer.sh
+  script: python_installer.sh

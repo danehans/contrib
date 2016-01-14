@@ -1,0 +1,7 @@
+# netbootstrap defaults
+ext_net_int: enp15s0
+ext_net_dns: 172.29.74.154
+
+# This directory is where all the additional scripts go.
+# This puts them in a sane location
+bootstrap_script_dir: /opt/bin

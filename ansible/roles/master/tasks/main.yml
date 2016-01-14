@@ -1,4 +1,9 @@
 ---
+- name: Force source_type to github when coreos
+  set_fact:
+    source_type: "github-release"
+  when: is_coreos
+
 - include: packageManagerInstall.yml
   when: source_type == "packageManager"
   tags:
@@ -8,6 +13,21 @@
   when: source_type == "localBuild"
   tags:
     - binary-update
+
+- name: Install from github
+  include: github-release.yml
+  when: source_type == "github-release"
+
+- name: Add Kube Systemd Unit File
+  template: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+  register: "{{ item }}_service"
+  notify:
+    - reload systemd
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+  when: is_coreos
 
 - name: write the config file for the api server
   template: src=apiserver.j2 dest={{ kube_config_dir }}/apiserver
@@ -20,7 +40,8 @@
 
 - name: add cap_net_bind_service to kube-apiserver
   capabilities: path=/usr/bin/kube-apiserver capability=cap_net_bind_service=ep state=present
-  when: not is_atomic
+#  when: not is_atomic
+  when: not is_coreos
 
 - name: Enable apiserver
   service: name=kube-apiserver enabled=yes state=started
@@ -81,6 +102,15 @@
 - name: Enable kubelet
   service: name=kubelet enabled=yes state=started
   when: networking == 'opencontrail'
+
+- name: Copy demo scripts
+  copy:
+    src={{ item }}
+    dest={{ kube_script_dir }}/{{ item }}
+    mode=u+x
+  with_items:
+    - demo
+    - scale
 
 - include: firewalld.yml
   when: has_firewalld

@@ -2,6 +2,12 @@
 # This playbook deploys a kubernetes cluster 
 # with the default addons.
 
+#- name: print out operating system
+#  hosts: all
+#  gather_facts: True
+#  tasks:
+#  - debug: var=ansible_distribution
+
 - hosts: all
   gather_facts: false
   sudo: yes
@@ -37,14 +43,6 @@
   tags:
     - network-service-install
 
-# install opencontrail
-- hosts: all
-  sudo: yes
-  roles:
-    - { role: opencontrail, when: networking == 'opencontrail'}
-  tags:
-    - network-service-install
-
 # install kube master services
 - hosts: masters
   sudo: yes
@@ -69,13 +67,3 @@
     - node
   tags:
     - nodes
-
-# provision opencontrail once the services are operational
-- hosts:
-    - masters[0]
-    - nodes
-  sudo: yes
-  roles:
-    - { role: opencontrail-provision, when: networking == 'opencontrail' }
-  tags:
-    - network-service-config

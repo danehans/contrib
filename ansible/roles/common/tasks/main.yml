@@ -1,4 +1,9 @@
 ---
+- name: Get distro name from /etc/os-release
+  raw: "grep '^NAME=' /etc/os-release | sed s'/NAME=//'"
+  register: distro
+  always_run: yes
+
 - name: Determine if Atomic
   stat: path=/run/ostree-booted
   register: s
@@ -14,14 +19,28 @@
     is_atomic: true
   when: s.stat.exists
 
-- name: Set docker config file directory
+- name: Init the is_coreos fact
+  set_fact:
+    is_coreos: false
+
+- name: Set the is_coreos fact
+  set_fact:
+    is_coreos: true
+#  when: distro.stdout == "CoreOS"
+  when: "'CoreOS' in distro.stdout"
+
+- name: Set config file directory
   set_fact:
     docker_config_dir: "/etc/sysconfig"
+  when: is_coreos
 
 - name: Override docker config file directory for Debian
   set_fact:
     docker_config_dir: "/etc/default"
   when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+
+- name: Create docker config file directory
+  file: path={{ docker_config_dir }} state=directory mode=0755
 
 - name: Determine if has rpm
   stat: path=/usr/bin/rpm

@@ -1,0 +1,24 @@
+---
+- name: Add Flanneld Systemd Unit File
+  template: src=flannel.service dest=/etc/systemd/system/flanneld.service
+  register: flanneld_service
+  notify:
+    - reload systemd
+
+- name: Enable Flanneld for CoreOS
+  raw: /usr/bin/systemctl enable flanneld.service
+
+- name: Start Flanneld for CoreOS
+  raw: /usr/bin/systemctl start flanneld.service
+
+- name: Stop docker
+  raw: /usr/bin/systemctl stop docker.service
+
+- name: Destroy docker0 if needed
+  raw: >
+    ip link set docker0 down &&
+    brctl delbr docker0 ||
+    true
+
+- name: Start docker
+  raw: /usr/bin/systemctl start docker.service

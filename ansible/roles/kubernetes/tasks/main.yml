@@ -18,6 +18,16 @@
   notify:
     - restart daemons
 
+- name: Make sure manifest directory exists
+  file: path={{ kube_manifest_dir }} state=directory
+
+- name: Copy manifests
+  copy: src={{ item }} dest={{ kube_manifest_dir }}
+  with_items:
+    - slb-rc.yaml
+    - web-rc.yaml
+    - web-svc.yaml
+
 - include: secrets.yml
   tags:
     secrets

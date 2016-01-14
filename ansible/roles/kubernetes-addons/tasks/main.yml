@@ -1,9 +1,23 @@
 ---
+- name: Get distro name from /etc/os-release
+  raw: "grep '^NAME=' /etc/os-release | sed s'/NAME=//'"
+  register: distro
+  always_run: yes
+
+- name: Update {{ kube_bin_dir }} if this is CoreOS
+  set_fact:
+    kube_bin_dir: "/opt/bin"
+  when: is_coreos
+
 - name: Assures addons dir exists
   file: path={{ kube_addons_dir }} state=directory
 
-- include: generic-install.yml
-  when: not is_atomic
+# TODO Fix me. Ansible not respecting the when
+#- include: generic-install.yml
+#  when: distro.stdout != "CoreOS"
+#  when: not is_atomic or distro.stdout != 'CoreOS'
+#  when: not is_atomic or not is_coreos
+#  when: not is_coreos
 
 - name: Assures local addon dir exists
   local_action: file
@@ -36,23 +50,24 @@
 - include: kube-dash.yml
   when: kube-dash
 
-#- name: Get kube-addons script from Kubernetes
-#  get_url:
-#    url=https://raw.githubusercontent.com/GoogleCloudPlatform/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addons.sh
-#    dest={{ kube_script_dir }}/kube-addons.sh mode=0755
-#    force=yes
+- name: Get kube-addons script from Kubernetes
+  get_url:
+    url=https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addons.sh
+    dest={{ kube_script_dir }}/kube-addons.sh mode=0755
+    force=yes
 
-#- name: Get kube-addon-update script from Kubernetes
-#  get_url:
-#    url=https://raw.githubusercontent.com/GoogleCloudPlatform/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addon-update.sh
-#    dest={{ kube_script_dir }}/kube-addon-update.sh mode=0755
-#    force=yes
+- name: Get kube-addon-update script from Kubernetes
+  get_url:
+    url=https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addon-update.sh
+    dest={{ kube_script_dir }}/kube-addon-update.sh mode=0755
+    force=yes
 
-- name: HACK | copy local kube-addons.sh
-  copy: src=kube-addons.sh dest={{ kube_script_dir }}/kube-addons.sh mode=0755
-
-- name: HACK | copy local kube-addon-update.sh
-  copy: src=kube-addon-update.sh dest={{ kube_script_dir }}/kube-addon-update.sh mode=0755
+# Should no longer be needed if ^ works.
+#- name: HACK | copy local kube-addons.sh
+#  copy: src=kube-addons.sh dest={{ kube_script_dir }}/kube-addons.sh mode=0755
+#
+#- name: HACK | copy local kube-addon-update.sh
+#  copy: src=kube-addon-update.sh dest={{ kube_script_dir }}/kube-addon-update.sh mode=0755
 
 - name: Run kube-gen-token script to create {{ kube_token_dir }}/known_tokens.csv
   command: "{{ kube_script_dir }}/kube-gen-token.sh {{ item }}"

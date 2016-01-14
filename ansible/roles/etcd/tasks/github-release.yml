@@ -2,36 +2,39 @@
 - name: etcd version
   set_fact:
     etcd_version: "v2.2.0"
+  when: is_coreos
 
 - name: Create download dir
   file: path="/tmp/.ansible/files" state=directory
 
+- name: Create bin dir
+  file: path="/opt/bin" state=directory
+  when: is_coreos
+
 - name: Download tar file
   get_url:
-    url: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+    url: https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz
     dest: /tmp/.ansible/files
     validate_certs: False
   environment:
     http_proxy: "{{ http_proxy|default('') }}"
     https_proxy: "{{ https_proxy|default('') }}"
 
-- name: Extract tar file
+- name: Extract etcd tar file
   unarchive:
-    src: "/tmp/.ansible/files/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
-    dest: /usr/local
+    src: /tmp/.ansible/files/etcd-{{ etcd_version }}-linux-amd64.tar.gz
+    dest: /tmp/.ansible/files/
     copy: no
 
-- name: Create symlinks
-  file:
-    src: /usr/local/etcd-{{ etcd_version }}-linux-amd64/{{ item }}
-    dest: /usr/local/bin/{{ item }}
-    state: link
+- name: Move etcd bins
+  command: mv /tmp/.ansible/files/etcd-{{ etcd_version }}-linux-amd64/{{ item }} /opt/bin/{{ item }}
   with_items:
     - etcd
     - etcdctl
 
 - name: Create upstart script
   copy: src=etcd.upstart dest=/etc/init/etcd.conf
+  when: not is_coreos
 
 - name: Create config directory
   file: path="/etc/etcd" state=directory

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Demo a kube cluster
+
+# Show cluster info
+echo sclaing web rc to 10 pods
+sudo kubectl scale --replicas=10 rc web
+sleep 5
+sudo kubectl get pods
+sleep 3
+
+# Done
+echo scaling demo complete
