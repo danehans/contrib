@@ -2,21 +2,64 @@
 - include: fedora.yml
   when: ansible_distribution == "Fedora"
 
+- name: Update Kubernetes directories if this is CoreOS
+  set_fact:
+    bin_dir: "/opt/bin"
+    kube_script_dir: "/opt/bin/kubernetes"
+  when: ansible_lsb.id == "CoreOS" and kube_script_dir == "/usr/libexec/kubernetes"
+
 - name: Update {{ kube_script_dir }} if this is atomic
   set_fact:
     kube_script_dir: "/usr/local/libexec/kubernetes"
   when: is_atomic and kube_script_dir == "/usr/libexec/kubernetes"
 
+- name: Determine if Kubernetes download directory exists
+  stat: path={{ ansible_temp_dir }}
+  register: kdd
+  changed_when: false
+  always_run: yes
+
+- name: Determine if Kubernetes binary directory exists
+  stat: path={{ bin_dir }}
+  register: kbd
+  changed_when: false
+  always_run: yes
+
+- name: Determine if Kubernetes config directory exists
+  stat: path={{ kube_config_dir }}
+  register: kcd
+  changed_when: false
+  always_run: yes
+
+- name: Determine if Kubernetes scripts directory exists
+  stat: path={{ kube_script_dir }}
+  register: ksd
+  changed_when: false
+  always_run: yes
+
 - name: Create kubernetes config directory
   file: path={{ kube_config_dir }} state=directory
+  when: not kcd.stat.exists
 
 - name: Create kubernetes script directory
   file: path={{ kube_script_dir }} state=directory
+  when: not ksd.stat.exists
+
+- name: Create download dir
+  file: path={{ kube_download_dir }} state=directory
+  when: not kdd.stat.exists
+
+- name: Create bin dir
+  file: path={{ kube_bin_dir }} state=directory
+  when: not kbd.stat.exists
 
 - name: write the global config file
   template: src=config.j2 dest={{ kube_config_dir }}/config
   notify:
     - restart daemons
+
+- include: download_bins.yml
+  when: ansible_lsb.id == "CoreOS"
 
 - include: secrets.yml
   tags:
