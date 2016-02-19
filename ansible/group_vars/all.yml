@@ -23,6 +23,11 @@ cluster_name: cluster.local
 # If a password is needed to sudo to root that password must be set here
 #ansible_sudo_pass: password
 
+# Required for CoreOS. CoreOS does not include a Python interpreter. The
+# pre-ansible role installs a python interpreter to /opt/bin/. For more
+# information see https://coreos.com/blog/managing-coreos-with-ansible.html
+#ansible_python_interpreter: "PATH=/opt/bin:$PATH python"
+
 # A list of insecure registrys you night need to define
 insecure_registrys:
 #  - "gcr.io"
