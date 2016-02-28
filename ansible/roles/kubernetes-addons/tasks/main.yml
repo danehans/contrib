@@ -16,7 +16,13 @@
     state=directory
   sudo: no
 
-- name: Make sure the system services namespace exists
+- name: Determine if system services namespace yaml file exists
+  stat: path={{ kube_config_dir }}/addons/namespace.yaml
+  register: ns
+  changed_when: false
+  always_run: yes
+
+- name: Download system services namespace yaml file
   get_url:
     url=https://raw.githubusercontent.com/GoogleCloudPlatform/kubernetes/master/cluster/saltbase/salt/kube-addons/namespace.yaml
     dest="{{ kube_config_dir }}/addons/"
@@ -25,6 +31,7 @@
   environment:
     http_proxy: "{{ http_proxy|default('') }}"
     https_proxy: "{{ https_proxy|default('') }}"
+  when: not ns.stat.exists
 
 - include: dns.yml
   when: dns_setup
