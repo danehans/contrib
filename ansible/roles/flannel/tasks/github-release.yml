@@ -1,28 +1,39 @@
 ---
-- name: Set Flannel Version fact
-  set_fact:
-    flannel_version: 0.5.5
+- name: Determine if Flannel tar file exists
+  stat: path={{ ansible_temp_dir }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
+  register: ft
+  changed_when: false
+  always_run: yes
 
 - name: Download tar file
   get_url:
-    url: "https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+    url: "{{ flannel_download_url }}"
     dest: "{{ ansible_temp_dir }}"
     validate_certs: False
   environment:
     http_proxy: "{{ http_proxy|default('') }}"
     https_proxy: "{{ https_proxy|default('') }}"
+  when: not ft.stat.exists
+
+- name: Determine if Flannel extracted tar binaries exist
+  stat: path={{ bin_dir }}/flannel-{{ flannel_version }}/{{ item }}
+  register: fb
+  changed_when: false
+  always_run: yes
+  with_items:
+    - flanneld
+    - mk-docker-opts.sh
 
 - name: Extract tar file
   unarchive:
     src: "{{ ansible_temp_dir }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
-    dest: "{{ bin_path }}"
+    dest: "{{ ansible_temp_dir }}"
     copy: no
+  when: not item.stat.exists
+  with_items: "{{ fb.results }}"
 
-- name: Create symlinks
-  file:
-    src: "{{ bin_path }}/flannel-{{ flannel_version }}/{{ item }}"
-    dest: "{{ bin_path }}/bin/{{ item }}"
-    state: link
+- name: Move Flannel bins to bin_dir
+  command: mv "{{ ansible_temp_dir }}/flannel-{{ flannel_version }}/{{ item }}" "{{ bin_dir }}/{{ item }}"
   with_items:
     - flanneld
     - mk-docker-opts.sh
