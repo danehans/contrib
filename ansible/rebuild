@@ -1,0 +1,13 @@
+#/bin/bash
+
+set -e
+
+# power cycle servers
+/usr/bin/ipmitool -H 172.22.111.141 -U cisco -Pcisco123 power cycle
+/usr/bin/ipmitool -H 172.22.111.142 -U cisco -Pcisco123 power cycle
+/usr/bin/ipmitool -H 172.22.111.143 -U cisco -Pcisco123 power cycle
+
+# clear out ssh keys
+/usr/bin/ssh-keygen -R 172.22.111.161
+/usr/bin/ssh-keygen -R 172.22.111.162
+/usr/bin/ssh-keygen -R 172.22.111.163
