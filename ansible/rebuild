@@ -1,0 +1,9 @@
+#/bin/bash
+
+set -e
+
+# power cycle servers
+/usr/bin/ipmitool -H $1 -U admin -Ppassword power cycle
+
+# clear out ssh keys
+/usr/bin/ssh-keygen -R $1

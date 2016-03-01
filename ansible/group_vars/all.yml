@@ -15,6 +15,7 @@ cluster_name: cluster.local
 # the managed machines. The user must be able to use sudo without asking
 # for password unless ansible_sudo_pass is set
 #ansible_ssh_user: root
+ansible_ssh_user: core
 
 # password for the ansible_ssh_user. If this is unset you will need to set up
 # ssh keys so a password is not needed.
@@ -26,7 +27,7 @@ cluster_name: cluster.local
 # Required for CoreOS. CoreOS does not include a Python interpreter. The
 # pre-ansible role installs a python interpreter to /opt/bin/. For more
 # information see https://coreos.com/blog/managing-coreos-with-ansible.html
-#ansible_python_interpreter: "PATH=/opt/bin:$PATH python"
+ansible_python_interpreter: "PATH=/opt/bin:$PATH python"
 
 # A list of insecure registrys you night need to define
 insecure_registrys:
@@ -35,6 +36,11 @@ insecure_registrys:
 # If you need a proxy for the docker daemon define these here
 #http_proxy: "http://proxy.example.com:3128"
 #https_proxy: "http://proxy.example.com:3128"
+http_proxy: "http://10.225.211.250:9999"
+https_proxy: "http://10.225.211.250:9999"
+
+# The URL to download the Kubernetes binaries for CoreOS
+kube_download_url: http://10.225.211.250/downloads/bins/kubernetes/v{{ kube_version }}/kubernetes.tar.gz
 
 # Kubernetes internal network for services.
 # Kubernetes services will get fake IP addresses from this range.
@@ -44,6 +50,9 @@ kube_service_addresses: 10.254.0.0/16
 
 # Network implementation (flannel|opencontrail)
 networking: flannel
+
+# The URL to download the Flannel binaries for CoreOS
+flannel_download_url: http://10.225.211.250/downloads/bins/flannel/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
 
 # External network
 # opencontrail_public_subnet: 10.1.4.0/24
@@ -57,7 +66,7 @@ networking: flannel
 # Flannel internal network (optional). When flannel is used, it will assign IP
 # addresses from this range to individual pods.
 # This network must be unused in your network infrastructure!
-flannel_subnet: 172.16.0.0
+flannel_subnet: 2.2.0.0
 
 # Flannel internal network total size (optional). This is the prefix of the
 # entire flannel overlay network.  So the entirety of 172.16.0.0/12 must be
