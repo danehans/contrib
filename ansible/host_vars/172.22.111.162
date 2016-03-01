@@ -1,0 +1,4 @@
+---
+kube_internal_interface: enp11s0
+kube_internal_ip: 192.168.111.162
+kube_internal_cidr: /24

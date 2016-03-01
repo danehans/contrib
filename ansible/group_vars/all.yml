@@ -57,7 +57,7 @@ kube_service_addresses: 10.254.0.0/16
 # kube_internal_ip: 10.10.10.2
 # kube_internal_cidr: /24
 # Repeat the above for additional servers.
-manage_internal_kube_network: false
+manage_internal_kube_network: true
 
 # Network implementation (flannel|opencontrail)
 networking: flannel
