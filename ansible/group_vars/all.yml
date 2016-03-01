@@ -57,7 +57,7 @@ networking: flannel
 # Flannel internal network (optional). When flannel is used, it will assign IP
 # addresses from this range to individual pods.
 # This network must be unused in your network infrastructure!
-flannel_subnet: 172.16.0.0
+flannel_subnet: 2.2.0.0
 
 # Flannel internal network total size (optional). This is the prefix of the
 # entire flannel overlay network.  So the entirety of 172.16.0.0/12 must be

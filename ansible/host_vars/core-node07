@@ -1,0 +1,4 @@
+---
+kube_internal_interface: enp15s0
+kube_internal_ip: 10.30.118.170
+kube_internal_cidr: /28
