@@ -25,6 +25,8 @@
   environment:
     http_proxy: "{{ http_proxy|default('') }}"
     https_proxy: "{{ https_proxy|default('') }}"
+    no_proxy: "{{ no_proxy|default('') }}"
+  when: not ns.stat.exists
 
 - include: dns.yml
   when: dns_setup
