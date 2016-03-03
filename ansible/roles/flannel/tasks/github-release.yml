@@ -13,10 +13,11 @@
   environment:
     http_proxy: "{{ http_proxy|default('') }}"
     https_proxy: "{{ https_proxy|default('') }}"
+    no_proxy: "{{ no_proxy|default('') }}"
   when: not ft.stat.exists
 
 - name: Determine if Flannel extracted tar binaries exist
-  stat: path={{ bin_dir }}/flannel-{{ flannel_version }}/{{ item }}
+  stat: path={{ bin_path }}/flannel-{{ flannel_version }}/{{ item }}
   register: fb
   changed_when: false
   always_run: yes
