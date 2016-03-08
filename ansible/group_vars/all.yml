@@ -31,7 +31,7 @@ ansible_python_interpreter: "PATH=/opt/bin:$PATH python"
 
 # A list of insecure registrys you night need to define
 insecure_registrys:
-#  - "gcr.io"
+  - "172.22.111.192:5000"
 
 # If you need a proxy for the docker daemon define these here
 #http_proxy: "http://proxy.example.com:3128"
@@ -39,7 +39,7 @@ insecure_registrys:
 #no_proxy: "127.0.0.1,localhost,docker-registry.somecorporation.com"
 http_proxy: "http://proxy-wsa.esl.cisco.com:80"
 https_proxy: "http://proxy-wsa.esl.cisco.com:80"
-no_proxy: "127.0.0.1,localhost,172.22.111.248"
+no_proxy: "127.0.0.1,localhost,172.22.111.248,172.22.111.192"
 
 # The URL to download the Kubernetes binaries for CoreOS
 kube_download_url: http://172.22.111.248/downloads/bins/kubernetes/v{{ kube_version }}/kubernetes.tar.gz
@@ -113,3 +113,4 @@ dns_replicas: 1
 
 # See kube documentation for apiserver runtime config options.  Example below enables HPA, deployments features.
 # apiserver_extra_args: "--runtime-config=extensions/v1beta1/deployments=true"
+apiserver_extra_args: "--service-node-port-range=9000-9999"
