@@ -58,7 +58,7 @@
   notify:
     - restart daemons
 
-- include: download_bins.yml
+- include: coreos.yml
   when: ansible_lsb.id == "CoreOS"
 
 - include: secrets.yml
