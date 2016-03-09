@@ -47,6 +47,3 @@
     - kube-scheduler
   notify:
     - reload systemd
-
-- include: configure_internal_network.yml
-  when: manage_internal_kube_network

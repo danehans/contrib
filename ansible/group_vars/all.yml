@@ -60,6 +60,14 @@ kube_service_addresses: 10.254.0.0/16
 # Repeat the above for additional servers.
 manage_internal_kube_network: true
 
+# when manage_internal_kube_network: true
+# kube_internal_routes adds internal routes for
+# CoreOS deployments in the form of:
+# destination_network,destination_mask,next_hop_ip
+# Example:  - 192.168.0.0,/16,192.168.111.192
+kube_internal_routes:
+#  - 192.168.0.0,/16,192.168.111.192
+
 # Network implementation (flannel|opencontrail)
 networking: flannel
 
