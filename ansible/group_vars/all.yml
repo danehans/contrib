@@ -92,3 +92,71 @@ dns_replicas: 1
 
 # See kube documentation for apiserver runtime config options.  Example below enables HPA, deployments features.
 # apiserver_extra_args: "--runtime-config=extensions/v1beta1/deployments=true"
+
+# URL to download Kubernetes binaries tar file. Applicable for
+# deployments that use kube_source_type: "github-release"
+# Default: https://github.com/kubernetes/kubernetes/releases/download/v{{ kube_version }}/kubernetes.tar.gz
+#kube_download_url: http://www.example.com/kubernetes.tar.gz
+
+# URL to download Flannel binaries tar file. Applicable for
+# deployments that use flannel_source_type: "github-release"
+# Default:
+# https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
+#flannel_download_url: http://www.example.com/flannel-0.5.5-linux-amd64.tar.gz
+
+### Gem Master Group Vars ###
+
+# IP of gem-master used for PXE booting nodes
+#dnsmasq_listen_address: '10.10.10.10'
+
+# Don't change ATM
+#dnsmasq_domain_needed: true
+
+# Don't change ATM
+#dnsmasq_expand_hosts: true
+
+# Don't change ATM
+#dnsmasq_bogus_priv: true
+
+# DNS Domain to use for PXE nodes
+#dnsmasq_domain: 'example.com'
+
+# Address range to use for assigning to PXE-booted nodes
+#dnsmasq_dhcp_ranges:
+#  - start_addr: '10.30.100.10'
+#    end_addr: '10.30.100.250'
+#    lease_time: '8h'
+
+# Set specific IP's for hosts within the dnsmasq_dhcp_ranges above
+#dnsmasq_dhcp_hosts:
+#  - name: 'master'
+#    mac: 'a4:4c:11:13:44:69'
+#    ip: '10.30.100.11'
+# repeat for additional hosts
+
+# IP/DNS name of host the gem-master
+#dnsmasq_tftp_server: 'gem-master.example.com'
+
+# Default PXE boot file
+#dnsmasq_boot_file: 'pxelinux.0'
+
+# Gateway IP for PXE-booted nodes
+#dnsmasq_option_router: '10.30.118.65'
+
+# Don't change ATM
+#tftp_server_pxe_support: true
+
+# IP/DNS name of the gem-master
+#httpd_ServerName: gem-master.example.com
+
+# coreos-cloudinit configuration. Don't change ATM
+#cloudinit_write_files: |
+#  - path: /etc/profile.d/opt-path.sh
+#    owner: root
+#    permissions: 0755
+#    content: |
+#      #! /usr/bin/bash
+#      PATH=$PATH/opt/bin
+#
+#cloudinit_ssh_authorized_keys: >
+  # ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDycXXAIMkoVOe3bTagGczMjCu9pWu11ntF/dKLoHq3dbSKHx9iCb1uR+JdhS3QnOPhOZGnHshwytH6OF1qjlXugf5gxqvqO/JzR/PrWpsScl4o0GEdkbRD7WCmnUtdstGsl8N/L6MRbU8HCXv4THgkMA/PvvlifYTFg9u+lrwIYec0OF3CsPwouMv7Vn7jh3T4G3hBRETU7+SwzIxbhBapw+azVVv2EF9sjU6vlV3H+vSqs2hJTkD22M2GGj8tM6+kYu0Qh/LYj/QETWfGFrA2kAosLC4xsUA9kEQdJaAOkNMNZJT+aTFhYY0Dd0l7U1EOjbdqj14khJHGQn6ygCaT core@gem-master.example.com
