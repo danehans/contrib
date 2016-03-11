@@ -1,0 +1,10 @@
+---
+- name: Open firewalld port for tftp-server
+  firewalld: port=69/udp permanent=false state=enabled
+  # in case this is a server where firewalld is turned off
+  ignore_errors: yes
+
+- name: Save firewalld port for tftp-server
+  firewalld: port=69/udp permanent=true state=enabled
+  # in case this is a server where firewalld is turned off
+  ignore_errors: yes

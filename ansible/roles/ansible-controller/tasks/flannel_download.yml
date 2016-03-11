@@ -1,0 +1,27 @@
+---
+- name: Determine if Flannel download directory exists
+  stat: path={{ flannel_download_dir }}
+  register: fdd
+  changed_when: false
+  always_run: yes
+
+- name: Create Flannel download directory
+  file: path={{ flannel_download_dir }} state=directory
+  when: not fdd.stat.exists
+
+- name: Determine if Flannel tar file exists
+  stat: path={{flannel_download_dir }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
+  register: ft
+  changed_when: false
+  always_run: yes
+
+- name: Download Flannel tar file
+  get_url:
+    url: "https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+    dest: "{{ flannel_download_dir }}"
+    validate_certs: False
+  environment:
+    http_proxy: "{{ http_proxy|default('') }}"
+    https_proxy: "{{ https_proxy|default('') }}"
+    no_proxy: "{{ no_proxy|default('') }}"
+  when: not ft.stat.exists

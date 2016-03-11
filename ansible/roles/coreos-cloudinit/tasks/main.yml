@@ -1,0 +1,21 @@
+# roles/coreos-cloudinit/tasks/main.yml
+---
+
+- name: Ensure {{ cloudinit_dir }} root directory exists
+  file:
+    path: "{{ cloudinit_dir }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0701'
+  tags: coreos-cloudinit
+
+- name: Install coreos-cloudinit file
+  template:
+    src: cloudinit-config.j2
+    dest: "{{ cloudinit_dir }}/cloudinit.yml"
+    owner: apache
+    group: apache
+    mode: '0701'
+  notify: restart httpd
+  tags: coreos-cloudinit

@@ -1,0 +1,27 @@
+---
+- name: Determine if Kubernetes download directory exists
+  stat: path={{ kube_download_dir }}
+  register: kdd
+  changed_when: false
+  always_run: yes
+
+- name: Create Kubernetes download directory
+  file: path={{ kube_download_dir }} state=directory
+  when: not kdd.stat.exists
+
+- name: Determine if Kubernetes tar file exists
+  stat: path={{ kube_download_dir }}/kubernetes.tar.gz
+  register: kt
+  changed_when: false
+  always_run: yes
+
+- name: Download Kubernetes tar file
+  get_url:
+    url: "https://github.com/kubernetes/kubernetes/releases/download/v{{ kube_version }}/kubernetes.tar.gz"
+    dest: "{{ kube_download_dir }}"
+    validate_certs: False
+  environment:
+    http_proxy: "{{ http_proxy|default('') }}"
+    https_proxy: "{{ https_proxy|default('') }}"
+    no_proxy: "{{ no_proxy|default('') }}"
+  when: not kt.stat.exists

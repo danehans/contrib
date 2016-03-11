@@ -1,0 +1,92 @@
+# roles/tftp/tasks/main.yml
+---
+
+- name: Install packages
+  yum:
+    pkg: "{{ item }}"
+    state: installed
+  with_items: tftp_packages
+  tags: tftp
+
+- name: Ensure tftp root directory exists
+  file:
+    path: "{{ tftp_root_directory }}"
+    state: directory
+    owner: "{{ tftp_user }}"
+    group: "{{ tftp_group }}"
+    mode: "{{ tftp_mode }}"
+    setype: "{{ tftp_setype }}"
+  tags: tftp
+
+- name: Ensure SELinux boolean ‘tftp_anon_write’ has the desired value
+  seboolean:
+    name: tftp_anon_write
+    state: "{{ tftp_anon_write }}"
+    persistent: yes
+  tags: tftp
+
+- name: Ensure SELinux boolean ‘tftp_home_dir’ has the desired value
+  seboolean:
+    name: tftp_home_dir
+    state: "{{ tftp_home_dir }}"
+    persistent: yes
+  tags: tftp
+
+- name: Ensure service is started
+  service:
+    name: "{{ tftp_service }}"
+    state: started
+    enabled: true
+  tags: tftp
+
+- name: Install configuration file
+  template:
+    dest: /etc/xinetd.d/tftp
+    src: etc_xinetd.d_tftp.j2
+  notify:
+    - restart tftp
+  tags: tftp
+
+- name: Install foreman map file
+  template:
+    dest: /etc/tftpd.map
+    src: etc_tftpd.map.j2
+  notify:
+    - restart tftp
+  when: tftp_server_foreman_support
+  tags:
+    - tftp
+    - foreman
+
+- name: Determine if firewalld installed
+  command: "rpm -q firewalld"
+  register: s
+  changed_when: false
+  failed_when: false
+  always_run: yes
+
+- name: Set the has_firewalld fact
+  set_fact:
+    has_firewalld: true
+  when: s.rc == 0
+
+- name: Determine if iptables-services installed
+  command: "rpm -q iptables-services"
+  register: s
+  changed_when: false
+  failed_when: false
+  always_run: yes
+
+- name: Set the has_iptables fact
+  set_fact:
+    has_iptables: true
+  when: s.rc == 0
+
+- include: firewalld.yml
+  when: has_firewalld
+
+- include: iptables.yml
+  when: not has_firewalld and has_iptables
+
+- include: pxe.yml
+  when: tftp_server_pxe_support

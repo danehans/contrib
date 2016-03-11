@@ -1,0 +1,53 @@
+# roles/tftp/defaults/main.yml
+---
+
+# Root directory of shared files
+tftp_root_directory: /var/lib/tftpboot
+
+# See tftp(8) man page for details on how to set the server arguments
+# http://linux.die.net/man/8/tftpd
+tftp_server_args: "--secure"
+
+# Changing this to 'yes' will disable TFTP, so you probably want to leave
+# this alone...
+tftp_disable: "no"
+
+# Default SELinux context. Set this to ‘public_content_t’ or
+# ‘public_content_rw_t’ to serve these files through other services (web,
+# ftp, ...). See man tftpd_selinux(8) for details
+tftp_setype: tftpdir_rw_t
+
+tftp_anon_write: no
+tftp_home_dir: no
+
+tftp_socket_type: "dgram"
+tftp_protocol: "udp"
+tftp_wait: "yes"
+tftp_user: "root"
+tftp_group: "root"
+tftp_mode: "0755"
+tftp_server: "/usr/sbin/in.tftpd"
+tftp_per_source: "11"
+tftp_cps: "100 2"
+tftp_flags: "IPv4"
+
+# Enable Foreman support by creating suitable tftpd.map
+tftp_server_foreman_support: false
+
+# Enable syslinux support through TFTP. Allows TFTP to host files specified
+# in syslinux_root_directory/syslinux_tftp_files
+# http://www.syslinux.org/wiki/index.php?title=The_Syslinux_Project
+tftp_server_pxe_support: false
+
+# Root directory for syslinux files
+syslinux_root_directory: /usr/share/syslinux
+
+pxe_config_dir: "{{ tftp_root_directory }}/pxelinux.cfg"
+
+# Supported pxe image options: coreos
+pxe_distro_name: coreos
+pxe_distro_release: alpha
+pxe_distro_kernel: coreos_production_pxe.vmlinuz
+pxe_distro_initrd: coreos_production_pxe_image.cpio.gz
+coreos_cloud_config_url: http://build2.ctocllab.cisco.com/coreos/cloudinit.yml
+coreos_autologin: true

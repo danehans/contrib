@@ -1,0 +1,10 @@
+# roles/httpd/defaults/main.yml
+---
+
+# coreos-cloudinit enables a user to customize CoreOS machines by providing
+# either a cloud-config document or an executable script through user-data.
+# For more information: https://github.com/coreos/coreos-cloudinit
+cloudinit_support: false
+
+# Used to create the html subdirectory for hosting coreos-cloudinit files.
+cloudinit_dir: /var/www/html/coreos

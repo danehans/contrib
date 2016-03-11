@@ -1,0 +1,27 @@
+# roles/tftp/vars/main.yml
+---
+
+tftp_packages:
+  - libsemanage-python
+  - tftp-server
+  - tftp
+  - xinetd
+
+tftp_service: xinetd
+
+syslinux_package: syslinux
+
+syslinux_tftp_files:
+  - pxelinux.0
+  - menu.c32
+  - memdisk
+  - mboot.c32
+  - chain.c32
+
+pxe_image_files:
+  - coreos_production_pxe.vmlinuz
+  - coreos_production_pxe.vmlinuz.sig
+  - coreos_production_pxe_image.cpio.gz
+  - coreos_production_pxe_image.cpio.gz.sig
+
+pxe_image_download_url: http://{{ pxe_distro_release }}.release.core-os.net/amd64-usr/current
