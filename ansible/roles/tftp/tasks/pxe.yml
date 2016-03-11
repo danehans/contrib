@@ -1,0 +1,47 @@
+# roles/syslinux/tasks/main.yml
+---
+
+- name: Install syslinux package
+  yum:
+    pkg: "{{ item }}"
+    state: installed
+  with_items: syslinux_package
+  tags: syslinux
+
+- name: Copy syslinux files
+  copy:
+    src: "{{ syslinux_root_directory }}/{{ item }}"
+    dest: "{{ tftp_root_directory }}"
+  with_items: syslinux_tftp_files
+
+- name: make sure the pxe config directory exits
+  file:
+    path={{ tftp_root_directory }}/pxelinux.cfg
+    state=directory
+
+- name: write the pxe default menu
+  template: src=pxe_cfg_default.j2 dest={{ tftp_root_directory }}/pxelinux.cfg/default
+
+- name: make sure the pxe image download directory exits
+  file:
+    path={{ tftp_root_directory }}/images/{{ pxe_distro_name }}/{{ pxe_distro_release }}
+    state=directory
+
+- name: Determine if the pxe kernel and image files exist
+  stat: path={{ tftp_root_directory }}/images/{{ pxe_distro_name }}/{{ pxe_distro_release }}/{{ item }}
+  register: pif
+  changed_when: false
+  always_run: yes
+  with_items: pxe_image_files
+
+- name: Download pxe kernel and image files
+  get_url:
+    url: "{{ pxe_image_download_url }}/{{ item.item }}"
+    dest: "{{ tftp_root_directory }}/images/{{ pxe_distro_name }}/{{ pxe_distro_release }}"
+    validate_certs: False
+  environment:
+    http_proxy: "{{ http_proxy|default('') }}"
+    https_proxy: "{{ https_proxy|default('') }}"
+    no_proxy: "{{ no_proxy|default('') }}"
+  when: not item.stat.exists
+  with_items: "{{ pif.results }}"

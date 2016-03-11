@@ -1,0 +1,24 @@
+# Version of Kubernetes binaries.
+kube_version: 1.1.4
+
+# Version of Flannel binaries.
+flannel_version: 0.5.5
+
+# Manage downloading Kubernetes binaries tar to {{ ansible_temp_dir }}
+manage_kube_download: true
+
+# Manage downloading Flannel binaries tar to {{ ansible_temp_dir }}
+manage_flannel_download: true
+
+# Directory used by Ansible to temporarily store files on
+# Ansible managed systems.
+ansible_temp_dir: /tmp/.ansible/files
+
+# Base download directory.
+download_dir: /var/www/html/releases
+
+# Kubernetes base download directory.
+kube_download_dir: "{{ download_dir }}/kubernetes/{{ kube_version }}"
+
+# Flannel base download directory.
+flannel_download_dir: "{{ download_dir }}/flannel/{{ flannel_version }}"

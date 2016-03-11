@@ -1,0 +1,15 @@
+---
+- name: Get iptables rules
+  command: iptables -L --wait
+  register: iptablesrules
+  always_run: yes
+
+- name: Enable iptables at boot
+  service: name=iptables enabled=yes state=started
+
+- name: Open tftp-server port with iptables
+  command: iptables -I INPUT 1 -p udp --dport 69 -j ACCEPT -m comment --comment "tftp-server"
+  when: "'tftp-server' not in iptablesrules.stdout"
+  notify:
+    - Save iptables rules
+

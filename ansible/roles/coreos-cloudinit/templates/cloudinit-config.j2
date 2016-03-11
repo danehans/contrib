@@ -1,0 +1,9 @@
+#cloud-config
+{% if cloudinit_write_files is defined %}
+write_files:
+{{ cloudinit_write_files }}
+{% endif %}
+{% if cloudinit_ssh_authorized_keys is defined %}
+ssh_authorized_keys:
+  - {{ cloudinit_ssh_authorized_keys }}
+{% endif %}

@@ -1,0 +1,42 @@
+# roles/ansible-controller/tasks/main.yml
+---
+
+- name: Install packages required for managing a Kubernetes cluster
+  yum:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+  - libselinux-python
+  - python-netaddr
+  tags: ansible-controller
+
+- name: Determine if Ansible temp directory exists
+  stat: path={{ ansible_temp_dir }}
+  register: atd
+  changed_when: false
+  always_run: yes
+
+- name: Create Ansible temp directory
+  file: path={{ ansible_temp_dir }} state=directory
+  when: not atd.stat.exists
+
+- name: Determine if download directory exists
+  stat: path={{ download_dir }}
+  register: dd
+  changed_when: false
+  always_run: yes
+
+- name: Create download directory
+  file: path={{ download_dir }} state=directory
+  when: not dd.stat.exists
+
+- include: flannel_download.yml
+  when: manage_flannel_download
+
+- include: kube_download.yml
+  when: manage_kube_download
+
+#TODO add code for downloading other files such
+# as addons, systemd unit files
+# - include: kube_addons_download.yml
+#  when: manage_kube_addons_download
