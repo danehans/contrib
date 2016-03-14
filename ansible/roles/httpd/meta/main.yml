@@ -15,5 +15,6 @@ galaxy_info:
       - 22
   categories:
     - web
+  galaxy_tags:
+    - version: 1.2.0
 dependencies: []
-version: 1.2.0
