@@ -12,7 +12,7 @@
   ignore_errors: True
 
 - name: CoreOS | Download pypy source
-  raw: wget -O /tmp/pypy-{{ pypy_version }}-linux64.tar.bz2 {{ pypy_base_url }}pypy-{{ pypy_version }}-linux64.tar.bz2
+  raw: wget -e http_proxy={{ http_proxy|default('') }} -e https_proxy={{ https_proxy|default('') }} -O /tmp/pypy-{{ pypy_version }}-linux64.tar.bz2 {{ pypy_base_url }}pypy-{{ pypy_version }}-linux64.tar.bz2
   when: need_pypy_tar
 
 - name: CoreOS | Extract pypy tar to tmp
