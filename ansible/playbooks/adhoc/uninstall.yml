@@ -110,6 +110,7 @@
 
     - name: Remove remaining files
       file: path={{ item }} state=absent
+      when: not is_coreos
       with_items:
         - "~{{ ansible_ssh_user }}/.kube"
         - /root/.kube
