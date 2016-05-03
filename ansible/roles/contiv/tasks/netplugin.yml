@@ -31,7 +31,7 @@
 
 - name: Netplugin | Copy contiv_cni.conf file
   copy: src=contiv_cni.conf dest={{ kube_plugin_dir }}/contiv_cni.conf
-  notify: restart kubelet
+#  notify: restart kubelet
 
 - name: Netplugin | Setup contiv.json config for the cni plugin
   template: src=contiv.cfg.j2 dest="{{ contiv_config_dir }}/contiv.json"
@@ -51,4 +51,4 @@
 - name: Netplugin | Start Netplugin
   service: name=netplugin state=started
   register: netplugin_started
-  notify: restart kubelet
+#  notify: restart kubelet

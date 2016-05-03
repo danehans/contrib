@@ -160,6 +160,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # This sets up both flannel and kube.
     ansible.playbook = "../cluster.yml"
+#    ansible.playbook = "../playbooks/adhoc/uninstall.yml"
 
     if provider == :virtualbox
       master_ip = VBOX_STATIC_IP_TEMPLATE % 0

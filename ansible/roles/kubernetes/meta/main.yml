@@ -1,0 +1,6 @@
+---
+dependencies:
+    - { role: common }
+    - { role: flannel, when: networking == 'flannel' }
+    - { role: opencontrail, when: networking == 'opencontrail'}
+    - { role: contiv, contiv_role: netmaster, when: networking == 'contiv' }

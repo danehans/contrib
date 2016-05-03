@@ -26,56 +26,34 @@
   tags:
     - docker
 
-# install flannel
-- hosts:
-    - masters
-    - nodes
-  sudo: yes
-  roles:
-    - { role: flannel, when: networking == 'flannel' }
-  tags:
-    - network-service-install
-
-# install opencontrail
-- hosts: all
-  sudo: yes
-  roles:
-    - { role: opencontrail, when: networking == 'opencontrail'}
-  tags:
-    - network-service-install
-
-# install contiv netmaster
-- hosts: masters
-  sudo: yes
-  roles:
-    - { role: contiv, contiv_role: netmaster, when: networking == 'contiv' }
-
 # install kube master services
 - hosts: masters
   sudo: yes
   roles:
+    - { role: flannel, when: networking == 'flannel' }
+    - { role: opencontrail, when: networking == 'opencontrail'}
+    - { role: contiv, contiv_role: netmaster, when: networking == 'contiv' }
     - master
-  tags:
-    - masters
-
-# launch addons, like dns
-- hosts: masters
-  sudo: yes
-  roles:
     - kubernetes-addons
   tags:
+    - masters
     - addons
     - dns
+    - network-service-install
 
-# install kubernetes on the nodes
+# install kubernetes node services
 - hosts: nodes
   sudo: yes
   roles:
+    - { role: flannel, when: networking == 'flannel' }
+    - { role: contiv, contiv_role: netplugin, when: networking == 'contiv' }
+    - { role: opencontrail, when: networking == 'opencontrail'}
     - node
   tags:
     - nodes
+    - network-service-install
 
-# provision opencontrail once the services are operational
+# provision opencontrail once dependant services are operational
 - hosts:
     - masters[0]
     - nodes
@@ -84,9 +62,3 @@
     - { role: opencontrail-provision, when: networking == 'opencontrail' }
   tags:
     - network-service-config
-
-# install contiv netplugin
-- hosts: nodes
-  sudo: yes
-  roles:
-    - { role: contiv, contiv_role: netplugin, when: networking == 'contiv' }
